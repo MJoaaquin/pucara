@@ -3,7 +3,7 @@ use rand::prelude::*;
 
 const PLAYER_SPEED: f32 = 450.0;
 const PLAYER_SIZE: f32 = 16.0;
-const ENEMY_QUANTITY: u8 = 5;
+const ENEMY_QUANTITY: u8 = 10;
 const ENEMY_SPEED: f32 = 250.0;
 
 fn main() {
@@ -11,10 +11,11 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_startup_system(spawn_player)
         .add_startup_system(spawn_camera)
-        .add_startup_system(spawn_enemies)
+        .add_system(spawn_enemies)
         .add_system(move_primary_player)
         .add_system(world_limit)
         .add_system(enemy_movement)
+        .add_system(despawn_enemy)
         .run()
 }
 
@@ -56,10 +57,11 @@ pub fn spawn_enemies(
     mut commands: Commands,
     window_query: Query<&Window, With<PrimaryWindow>>,
     asset_server: Res<AssetServer>,
+    enemies_query: Query<&Enemy>,
 ) {
     let window = window_query.get_single().unwrap();
 
-    for _ in 0..ENEMY_QUANTITY {
+    if enemies_query.iter().len() < ENEMY_QUANTITY.into() {
         let mut rng = rand::thread_rng();
         let rand_x: f32 = rng.gen_range(0.0..=window.width());
         let rand_y = window.height() - 10.0;
@@ -131,5 +133,13 @@ pub fn world_limit(
         }
 
         transform.translation = translation;
+    }
+}
+
+fn despawn_enemy(mut commands: Commands, enemies_query: Query<(Entity, &Transform), With<Enemy>>) {
+    for (entity, transform) in enemies_query.into_iter() {
+        if transform.translation.y < -1.0 {
+            commands.entity(entity).despawn();
+        }
     }
 }
