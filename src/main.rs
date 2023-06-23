@@ -16,11 +16,14 @@ fn main() {
         .add_system(world_limit)
         .add_system(enemy_movement)
         .add_system(despawn_enemy)
+        .add_system(damage_player)
         .run()
 }
 
 #[derive(Component)]
-pub struct Player {}
+pub struct Player {
+    pub health: u8,
+}
 
 #[derive(Component)]
 pub struct Enemy {
@@ -40,7 +43,7 @@ pub fn spawn_player(
             texture: asset_server.load("sprites/ship_0010.png"),
             ..default()
         },
-        Player {},
+        Player { health: 50 },
     ));
 }
 
@@ -138,8 +141,31 @@ pub fn world_limit(
 
 fn despawn_enemy(mut commands: Commands, enemies_query: Query<(Entity, &Transform), With<Enemy>>) {
     for (entity, transform) in enemies_query.into_iter() {
+        // if enemy is out of window kill it
         if transform.translation.y < -1.0 {
             commands.entity(entity).despawn();
+        }
+    }
+}
+
+fn damage_player(
+    mut commands: Commands,
+    mut player_query: Query<(Entity, &Transform, &mut Player), With<Player>>,
+    enemies_query: Query<&Transform, With<Enemy>>,
+) {
+    if let Ok((player, player_transform, mut player_information)) = player_query.get_single_mut() {
+        for transform in enemies_query.into_iter() {
+            // check if some enemy is crashing with the player
+            if transform.translation.distance(player_transform.translation) < 16.0 {
+                // reduce life from the player
+                player_information.health -= 10;
+
+                // if then player's life is equal to 0 kill it
+                if matches!(player_information.health, 0) {
+                    println!("Booom! 💥");
+                    commands.entity(player).despawn();
+                }
+            }
         }
     }
 }
