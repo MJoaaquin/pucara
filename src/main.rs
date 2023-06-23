@@ -157,12 +157,14 @@ fn damage_player(
         for transform in enemies_query.into_iter() {
             // check if some enemy is crashing with the player
             if transform.translation.distance(player_transform.translation) < 16.0 {
+                println!("Chocaste! 🛩️💥");
+
                 // reduce life from the player
                 player_information.health -= 10;
 
                 // if then player's life is equal to 0 kill it
                 if matches!(player_information.health, 0) {
-                    println!("Booom! 💥");
+                    println!("Perdiste! 💀");
                     commands.entity(player).despawn();
                 }
             }
