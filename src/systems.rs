@@ -13,6 +13,7 @@ pub fn spawn_camera(mut commands: Commands, window_query: Query<&Window, With<Pr
     });
 }
 
+// TODO: this system logic should be change when we implement a physycs crate
 pub fn world_limit(
     mut player_query: Query<&mut Transform, With<Player>>,
     window_query: Query<&Window, With<PrimaryWindow>>,

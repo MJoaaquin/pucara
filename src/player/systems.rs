@@ -41,6 +41,7 @@ pub fn move_primary_player(
     }
 }
 
+// TODO: this system logic should be change when we implement a physycs crate
 pub fn damage_player(
     mut commands: Commands,
     mut player_query: Query<(Entity, &Transform, &mut Player), With<Player>>,

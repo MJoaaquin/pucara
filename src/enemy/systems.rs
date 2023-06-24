@@ -50,6 +50,7 @@ pub fn enemy_movement(mut enemy_query: Query<(&mut Transform, &Enemy)>, time: Re
     }
 }
 
+// TODO: this system logic should be change when we implement a physycs crate
 pub fn despawn_enemy(
     mut commands: Commands,
     enemies_query: Query<(Entity, &Transform), With<Enemy>>,
