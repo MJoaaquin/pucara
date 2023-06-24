@@ -71,6 +71,7 @@ pub fn shoot(
     player_query: Query<&Transform, With<Player>>,
     keyboard_input: Res<Input<KeyCode>>,
     asset_server: Res<AssetServer>,
+    audio: Res<Audio>,
 ) {
     if keyboard_input.just_released(KeyCode::Space) {
         if let Ok(transform) = player_query.get_single() {
@@ -88,6 +89,9 @@ pub fn shoot(
                     direction: Vec2::new(0.0, 1.0),
                 },
             ));
+
+            let shoot_sound = asset_server.load("audio/shoot.ogg");
+            audio.play(shoot_sound);
         }
     }
 }
