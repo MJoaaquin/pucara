@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use bevy::{prelude::*, window::PrimaryWindow};
+use bevy::{app::AppExit, prelude::*, window::PrimaryWindow};
 use rand::prelude::*;
 
 const PLAYER_SPEED: f32 = 450.0;
@@ -24,6 +24,7 @@ fn main() {
         .add_system(damage_player)
         .add_system(shoot)
         .add_system(bullet_movement)
+        .add_system(exit_game)
         .run()
 }
 
@@ -230,5 +231,12 @@ fn bullet_movement(mut bullet_query: Query<(&mut Transform, &Bullet)>, time: Res
     for (mut transform, bullet) in bullet_query.iter_mut() {
         let direction = Vec3::new(bullet.direction.x, bullet.direction.y, 0.0);
         transform.translation += direction * BULLET_SPEED * time.delta_seconds();
+    }
+}
+
+fn exit_game(mut event_writter: EventWriter<AppExit>, keyboard_input: Res<Input<KeyCode>>) {
+    if keyboard_input.pressed(KeyCode::Escape) {
+        println!("Saliste del Juego 😭");
+        event_writter.send(AppExit)
     }
 }
