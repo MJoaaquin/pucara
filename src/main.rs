@@ -3,6 +3,7 @@ use rand::prelude::*;
 
 const PLAYER_SPEED: f32 = 450.0;
 const PLAYER_SIZE: f32 = 16.0;
+const PLAYER_POSITION: f32 = 20.0;
 const ENEMY_QUANTITY: u8 = 10;
 const ENEMY_SPEED: f32 = 250.0;
 
@@ -39,7 +40,7 @@ pub fn spawn_player(
 
     commands.spawn((
         SpriteBundle {
-            transform: Transform::from_xyz(window.width() / 2.0, window.height() / 2.0, 0.0),
+            transform: Transform::from_xyz(window.width() / 2.0, PLAYER_POSITION, 0.0),
             texture: asset_server.load("sprites/ship_0010.png"),
             ..default()
         },
