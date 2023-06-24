@@ -8,6 +8,7 @@ const PLAYER_SIZE: f32 = 16.0;
 const PLAYER_POSITION: f32 = 20.0;
 const ENEMY_QUANTITY: u8 = 10;
 const ENEMY_SPEED: f32 = 250.0;
+const BULLET_SPEED: f32 = 800.0;
 
 fn main() {
     App::new()
@@ -21,6 +22,8 @@ fn main() {
         .add_system(enemy_movement)
         .add_system(despawn_enemy)
         .add_system(damage_player)
+        .add_system(shoot)
+        .add_system(bullet_movement)
         .run()
 }
 
@@ -31,6 +34,11 @@ pub struct Player {
 
 #[derive(Component)]
 pub struct Enemy {
+    pub direction: Vec2,
+}
+
+#[derive(Component)]
+pub struct Bullet {
     pub direction: Vec2,
 }
 
@@ -189,5 +197,38 @@ fn damage_player(
                 }
             }
         }
+    }
+}
+
+fn shoot(
+    mut commands: Commands,
+    player_query: Query<&Transform, With<Player>>,
+    keyboard_input: Res<Input<KeyCode>>,
+    asset_server: Res<AssetServer>,
+) {
+    if keyboard_input.just_released(KeyCode::Space) {
+        if let Ok(transform) = player_query.get_single() {
+            commands.spawn((
+                SpriteBundle {
+                    transform: Transform::from_xyz(
+                        transform.translation.x,
+                        transform.translation.y,
+                        0.0,
+                    ),
+                    texture: asset_server.load("sprites/tile_0000.png"),
+                    ..default()
+                },
+                Bullet {
+                    direction: Vec2::new(0.0, 1.0),
+                },
+            ));
+        }
+    }
+}
+
+fn bullet_movement(mut bullet_query: Query<(&mut Transform, &Bullet)>, time: Res<Time>) {
+    for (mut transform, bullet) in bullet_query.iter_mut() {
+        let direction = Vec3::new(bullet.direction.x, bullet.direction.y, 0.0);
+        transform.translation += direction * BULLET_SPEED * time.delta_seconds();
     }
 }
