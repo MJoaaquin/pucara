@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use bevy::{prelude::*, window::PrimaryWindow};
 use rand::prelude::*;
 
@@ -12,6 +14,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_startup_system(spawn_player)
         .add_startup_system(spawn_camera)
+        .add_startup_system(setup_enemy_spawning)
         .add_system(spawn_enemies)
         .add_system(move_primary_player)
         .add_system(world_limit)
@@ -29,6 +32,11 @@ pub struct Player {
 #[derive(Component)]
 pub struct Enemy {
     pub direction: Vec2,
+}
+
+#[derive(Resource)]
+pub struct EnemySpawnConfig {
+    timer: Timer,
 }
 
 pub fn spawn_player(
@@ -57,29 +65,40 @@ pub fn spawn_camera(mut commands: Commands, window_query: Query<&Window, With<Pr
     });
 }
 
+pub fn setup_enemy_spawning(mut commands: Commands) {
+    commands.insert_resource(EnemySpawnConfig {
+        timer: Timer::new(Duration::from_millis(250), TimerMode::Repeating),
+    })
+}
+
 pub fn spawn_enemies(
     mut commands: Commands,
     window_query: Query<&Window, With<PrimaryWindow>>,
     asset_server: Res<AssetServer>,
     enemies_query: Query<&Enemy>,
+    time: Res<Time>,
+    mut config: ResMut<EnemySpawnConfig>,
 ) {
     let window = window_query.get_single().unwrap();
+    config.timer.tick(time.delta());
 
-    if enemies_query.iter().len() < ENEMY_QUANTITY.into() {
-        let mut rng = rand::thread_rng();
-        let rand_x: f32 = rng.gen_range(0.0..=window.width());
-        let rand_y = window.height() - 10.0;
+    if config.timer.finished() {
+        if enemies_query.iter().len() < ENEMY_QUANTITY.into() {
+            let mut rng = rand::thread_rng();
+            let rand_x: f32 = rng.gen_range(0.0..=window.width());
+            let rand_y = window.height() - 10.0;
 
-        commands.spawn((
-            SpriteBundle {
-                transform: Transform::from_xyz(rand_x, rand_y, 0.0),
-                texture: asset_server.load("sprites/ship_0022.png"),
-                ..default()
-            },
-            Enemy {
-                direction: Vec2::new(0.0, -1.0).normalize(),
-            },
-        ));
+            commands.spawn((
+                SpriteBundle {
+                    transform: Transform::from_xyz(rand_x, rand_y, 0.0),
+                    texture: asset_server.load("sprites/ship_0022.png"),
+                    ..default()
+                },
+                Enemy {
+                    direction: Vec2::new(0.0, -1.0).normalize(),
+                },
+            ));
+        }
     }
 }
 
