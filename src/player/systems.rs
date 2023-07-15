@@ -1,12 +1,13 @@
 use super::components::Player;
 use super::{PLAYER_POSITION, PLAYER_SPEED};
-use bevy::{prelude::*, window::PrimaryWindow};
 use bevy::math::vec2;
 use bevy::sprite::collide_aabb::collide;
+use bevy::{prelude::*, window::PrimaryWindow};
 
 use crate::bullet::components::Bullet;
 use crate::enemy::components::Enemy;
 use crate::player::PLAYER_SIZE;
+use crate::resources::Health;
 
 pub fn spawn_player(
     mut commands: Commands,
@@ -21,7 +22,7 @@ pub fn spawn_player(
             texture: asset_server.load("sprites/ship_0010.png"),
             ..default()
         },
-        Player { health: 50 },
+        Player {},
     ));
 }
 
@@ -49,6 +50,7 @@ pub fn damage_player(
     mut commands: Commands,
     mut player_query: Query<(Entity, &Transform, &mut Player), With<Player>>,
     enemies_query: Query<&Transform, With<Enemy>>,
+    mut health: ResMut<Health>,
 ) {
     if let Ok((player, player_transform, mut player_information)) = player_query.get_single_mut() {
         for transform in enemies_query.into_iter() {
@@ -57,22 +59,21 @@ pub fn damage_player(
                 player_transform.translation,
                 vec2(16.0, 16.0),
                 transform.translation,
-                vec2(16.0, 16.0)
+                vec2(16.0, 16.0),
             );
 
             if let Some(_) = collision {
                 println!("Chocaste! 🛩️💥");
 
                 // reduce life from the player
-                player_information.health -= 10;
+                health.value -= 10;
 
                 // if then player's life is equal to 0 kill it
-                if matches!(player_information.health, 0) {
+                if matches!(health.value, 0) {
                     println!("Perdiste! 💀");
                     commands.entity(player).despawn();
                 }
             }
-
         }
     }
 }

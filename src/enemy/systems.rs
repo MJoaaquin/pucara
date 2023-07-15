@@ -4,10 +4,11 @@ use std::time::Duration;
 use super::components::*;
 use super::resources::*;
 use super::{ENEMY_QUANTITY, ENEMY_SPEED};
-use bevy::{prelude::*, window::PrimaryWindow};
+use crate::bullet::components::Bullet;
+use crate::resources::Points;
 use bevy::math::vec2;
 use bevy::sprite::collide_aabb::collide;
-use crate::bullet::components::Bullet;
+use bevy::{prelude::*, window::PrimaryWindow};
 
 pub fn setup_enemy_spawning(mut commands: Commands) {
     commands.insert_resource(EnemySpawnConfig {
@@ -69,7 +70,8 @@ pub fn despawn_enemy(
 pub fn enemy_damage(
     mut commands: Commands,
     enemies: Query<(Entity, &Transform), With<Enemy>>,
-    bullets: Query<(Entity, &Transform), With<Bullet>>
+    bullets: Query<(Entity, &Transform), With<Bullet>>,
+    mut points: ResMut<Points>,
 ) {
     for (enemy, enemy_transform) in enemies.into_iter() {
         for (bullet, bullet_transform) in bullets.into_iter() {
@@ -77,13 +79,16 @@ pub fn enemy_damage(
                 enemy_transform.translation,
                 vec2(16.0, 16.0),
                 bullet_transform.translation,
-                vec2(1.0, 1.0)
+                vec2(1.0, 1.0),
             );
 
             if let Some(_) = collition {
                 println!("Enemigo muerto! 🛩️💥");
+
                 commands.entity(enemy).despawn();
                 commands.entity(bullet).despawn();
+
+                points.value += 1;
             }
         }
     }

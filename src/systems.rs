@@ -3,6 +3,7 @@ use bevy::{prelude::*, window::PrimaryWindow};
 
 use crate::player::components::Player;
 use crate::player::PLAYER_SIZE;
+use crate::resources::Points;
 
 pub fn spawn_camera(mut commands: Commands, window_query: Query<&Window, With<PrimaryWindow>>) {
     let window = window_query.get_single().unwrap();
@@ -49,5 +50,11 @@ pub fn exit_game(mut event_writter: EventWriter<AppExit>, keyboard_input: Res<In
     if keyboard_input.pressed(KeyCode::Escape) {
         println!("Saliste del Juego 😭");
         event_writter.send(AppExit)
+    }
+}
+
+pub fn show_points(points: Res<Points>) {
+    if points.is_changed() {
+        println!("{} enemigos muertos! 👾", points.value)
     }
 }

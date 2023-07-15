@@ -1,6 +1,4 @@
 use bevy::prelude::*;
 
 #[derive(Component)]
-pub struct Player {
-    pub health: u8,
-}
+pub struct Player;
