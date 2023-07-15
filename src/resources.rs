@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-#[derive(Resource)]
+#[derive(Resource, Debug)]
 pub struct Health {
     pub value: u32,
 }
@@ -11,7 +11,7 @@ impl Default for Health {
     }
 }
 
-#[derive(Resource)]
+#[derive(Resource, Debug)]
 pub struct Points {
     pub value: u32,
 }

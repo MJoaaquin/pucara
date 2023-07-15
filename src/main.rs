@@ -25,5 +25,6 @@ fn main() {
         .add_system(world_limit)
         .add_system(exit_game)
         .add_system(show_points)
+        .add_system(show_health)
         .run()
 }
