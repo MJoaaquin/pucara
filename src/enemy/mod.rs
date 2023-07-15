@@ -16,6 +16,7 @@ impl Plugin for EnemyPlugin {
         app.add_startup_system(setup_enemy_spawning)
             .add_system(spawn_enemies)
             .add_system(enemy_movement)
-            .add_system(despawn_enemy);
+            .add_system(despawn_enemy)
+            .add_system(enemy_damage);
     }
 }

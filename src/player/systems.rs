@@ -1,9 +1,12 @@
 use super::components::Player;
 use super::{PLAYER_POSITION, PLAYER_SPEED};
 use bevy::{prelude::*, window::PrimaryWindow};
+use bevy::math::vec2;
+use bevy::sprite::collide_aabb::collide;
 
 use crate::bullet::components::Bullet;
 use crate::enemy::components::Enemy;
+use crate::player::PLAYER_SIZE;
 
 pub fn spawn_player(
     mut commands: Commands,
@@ -50,7 +53,14 @@ pub fn damage_player(
     if let Ok((player, player_transform, mut player_information)) = player_query.get_single_mut() {
         for transform in enemies_query.into_iter() {
             // check if some enemy is crashing with the player
-            if transform.translation.distance(player_transform.translation) < 16.0 {
+            let collision = collide(
+                player_transform.translation,
+                vec2(16.0, 16.0),
+                transform.translation,
+                vec2(16.0, 16.0)
+            );
+
+            if let Some(_) = collision {
                 println!("Chocaste! 🛩️💥");
 
                 // reduce life from the player
@@ -62,6 +72,7 @@ pub fn damage_player(
                     commands.entity(player).despawn();
                 }
             }
+
         }
     }
 }

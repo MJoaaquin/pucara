@@ -5,6 +5,9 @@ use super::components::*;
 use super::resources::*;
 use super::{ENEMY_QUANTITY, ENEMY_SPEED};
 use bevy::{prelude::*, window::PrimaryWindow};
+use bevy::math::vec2;
+use bevy::sprite::collide_aabb::collide;
+use crate::bullet::components::Bullet;
 
 pub fn setup_enemy_spawning(mut commands: Commands) {
     commands.insert_resource(EnemySpawnConfig {
@@ -59,6 +62,29 @@ pub fn despawn_enemy(
         // if enemy is out of window kill it
         if transform.translation.y < -1.0 {
             commands.entity(entity).despawn();
+        }
+    }
+}
+
+pub fn enemy_damage(
+    mut commands: Commands,
+    enemies: Query<(Entity, &Transform), With<Enemy>>,
+    bullets: Query<(Entity, &Transform), With<Bullet>>
+) {
+    for (enemy, enemy_transform) in enemies.into_iter() {
+        for (bullet, bullet_transform) in bullets.into_iter() {
+            let collition = collide(
+                enemy_transform.translation,
+                vec2(16.0, 16.0),
+                bullet_transform.translation,
+                vec2(1.0, 1.0)
+            );
+
+            if let Some(_) = collition {
+                println!("Enemigo muerto! 🛩️💥");
+                commands.entity(enemy).despawn();
+                commands.entity(bullet).despawn();
+            }
         }
     }
 }
