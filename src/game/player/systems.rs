@@ -4,10 +4,9 @@ use bevy::math::vec2;
 use bevy::sprite::collide_aabb::collide;
 use bevy::{prelude::*, window::PrimaryWindow};
 
-use crate::bullet::components::Bullet;
-use crate::enemy::components::Enemy;
-use crate::player::PLAYER_SIZE;
-use crate::resources::Health;
+use crate::game::bullet::components::Bullet;
+use crate::game::enemy::components::Enemy;
+use crate::game::resources::Health;
 
 pub fn spawn_player(
     mut commands: Commands,
@@ -48,11 +47,11 @@ pub fn move_primary_player(
 // TODO: this system logic should be change when we implement a physycs crate
 pub fn damage_player(
     mut commands: Commands,
-    mut player_query: Query<(Entity, &Transform, &mut Player), With<Player>>,
+    mut player_query: Query<(Entity, &Transform), With<Player>>,
     enemies_query: Query<&Transform, With<Enemy>>,
     mut health: ResMut<Health>,
 ) {
-    if let Ok((player, player_transform, mut player_information)) = player_query.get_single_mut() {
+    if let Ok((player, player_transform)) = player_query.get_single_mut() {
         for transform in enemies_query.into_iter() {
             // check if some enemy is crashing with the player
             let collision = collide(
